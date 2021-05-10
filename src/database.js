@@ -1,4 +1,20 @@
 /**
+ * Error específico para recursos inexistentes en la DB.
+ */
+class ResourceNotFoundError extends Error {
+  /**
+   * @param {string} message
+   * @param {string} resource
+   * @param {number} id
+   */
+  constructor(message, resource, id) {
+    super(message);
+    this.resource = resource;
+    this.id = id;
+  }
+}
+
+/**
  * @typedef {Object} TUser
  * @property {string} name Nombre.
  * @property {number} age Edad.
@@ -137,7 +153,11 @@ module.exports = {
     const user = this.find(userId);
 
     if (!user) {
-      throw new Error(`No existe un usuario con ID "${userId}"`);
+      throw new ResourceNotFoundError(
+        `No existe un usuario con ID "${userId}"`,
+        'user',
+        userId
+      );
     }
 
     validateUser(userData);
@@ -156,7 +176,11 @@ module.exports = {
     const user = this.find(userId);
 
     if (!user) {
-      throw new Error(`No existe un usuario con ID "${userId}"`);
+      throw new ResourceNotFoundError(
+        `No existe un usuario con ID "${userId}"`,
+        'user',
+        userId
+      );
     }
 
     const userIndex = DB.findIndex((item) => item.id === userId);
@@ -165,4 +189,6 @@ module.exports = {
       DB.splice(userIndex, 1);
     }
   },
+
+  ResourceNotFoundError,
 };
