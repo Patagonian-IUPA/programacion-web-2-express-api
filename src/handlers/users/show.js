@@ -4,7 +4,7 @@ const database = require('../../database');
 module.exports = (route) => {
   route.get('/:userId', (req, res) => {
     const userId = parseInt(req.params.userId);
-    const user = database.DB.find((item) => item.id === userId);
+    const user = database.find(userId);
 
     if (user) {
       res.json(user);
