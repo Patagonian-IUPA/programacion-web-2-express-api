@@ -1,11 +1,18 @@
 // Referencia a la tabla de contenido
-const contentTable = document.getElementById("contentTable");
+const contentTable = document.getElementById('contentTable');
 // Referencia al template
-const templateRow = document.getElementById("contentRow").content;
+const templateRow = document.getElementById('contentRow').content;
 
-const inputName = document.getElementById("inputName");
-const inputAge = document.getElementById("inputAge");
-const createUserForm = document.getElementById("createUserForm");
+const inputName = document.getElementById('inputName');
+const inputAge = document.getElementById('inputAge');
+
+const createUserFormContent = document.getElementById('form-create');
+const createUserForm = document.getElementById('createUserForm');
+
+const updateUserFormContent = document.getElementById('form-update');
+const updateUserForm = document.getElementById('updateUserForm');
+
+let editingUserId = null;
 
 /**
  * Agregar Row.
@@ -18,10 +25,13 @@ function addRow(name, age, id) {
   const row = templateRow.cloneNode(true);
 
   // Modifico el valor del nodo de texto por el ingesado por el usuario
-  row.querySelector(".txtName").innerText = name;
-  row.querySelector(".txtAge").innerText = age;
-  row.querySelector(".btnDelete").onclick = () => deleteUser(id);
-  row.querySelector(".row").dataset.id = id;
+  row.querySelector('.txtName').innerText = name;
+  row.querySelector('.txtAge').innerText = age;
+
+  row.querySelector('.btnDelete').onclick = () => deleteUser(id);
+  row.querySelector('.btnEdit').addEventListener('click', () => updateUser(id));
+
+  row.querySelector('.row').dataset.id = id;
 
   // Inserto en el contenido de la tabla
   contentTable.appendChild(row);
@@ -43,7 +53,7 @@ async function api(method, endpoint, body = undefined) {
     method,
     body,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
   });
 
@@ -56,8 +66,8 @@ async function api(method, endpoint, body = undefined) {
  * Cargar datos de la tabla.
  */
 async function loadTable() {
-  contentTable.innerHTML = "";
-  const data = await api("get", "/users");
+  contentTable.innerHTML = '';
+  const data = await api('get', '/users');
   data.forEach(({ name, age, id }) => addRow(name, age, id));
 }
 
@@ -68,16 +78,6 @@ async function initApp() {
   await loadTable();
 }
 
-// function initApp() {
-//   fetch('/api/users', {
-//     method: 'GET',
-//   }).then((response) => {
-//     response.json().then((data) => {
-//       data.forEach(({ name, age }) => addRow(name, age));
-//     });
-//   });
-// }
-
 /**
  * Crear usuario.
  */
@@ -85,7 +85,7 @@ async function createUser() {
   const name = inputName.value;
   const age = inputAge.value;
 
-  await api("post", "/users", {
+  await api('post', '/users', {
     name,
     age,
   });
@@ -94,9 +94,43 @@ async function createUser() {
   loadTable();
 }
 
+/**
+ * Actualizar usuario.
+ */
+async function updateUser(id) {
+  editingUserId = id;
+
+  createUserFormContent.style.display = 'none';
+  updateUserFormContent.style.display = '';
+
+  const user = await api('get', `/users/${id}`);
+
+  updateUserFormContent.querySelector('#user-id').innerText = id;
+  updateUserForm.querySelector('#inputName').value = user.name;
+  updateUserForm.querySelector('#inputAge').value = user.age;
+}
+
+async function saveUpdateUser() {
+  const name = updateUserForm.querySelector('#inputName').value;
+  const age = updateUserForm.querySelector('#inputAge').value;
+
+  await api('put', `/users/${editingUserId}`, {
+    name,
+    age,
+  });
+
+  cancelUpdate();
+  loadTable();
+}
+
 async function deleteUser(id) {
-  await api("delete", `/users/${id}`);
+  await api('delete', `/users/${id}`);
 
   const userRow = document.querySelector(`[data-id='${id}']`);
   userRow.remove();
+}
+
+function cancelUpdate() {
+  updateUserFormContent.style.display = 'none';
+  createUserFormContent.style.display = '';
 }
