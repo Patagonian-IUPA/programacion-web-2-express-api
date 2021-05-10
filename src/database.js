@@ -160,11 +160,13 @@ module.exports = {
       );
     }
 
-    validateUser(userData);
+    validateUser(newUserData);
 
     // Actualiza datos
     user.name = newUserData.name;
     user.age = newUserData.age;
+
+    return user;
   },
 
   /**
