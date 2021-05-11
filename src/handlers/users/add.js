@@ -1,7 +1,8 @@
 const database = require('../../database');
-const { body, validationResult } = require('express-validator');
+const { validationResult } = require('express-validator');
 const validateName = require('../../validations/user/validateName');
 const validateAge = require('../../validations/user/validateAge');
+const { ValidationError } = require('../../validations/validationError');
 
 /**
  * POST /api/users
@@ -14,8 +15,7 @@ module.exports = (route) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
-      return;
+      throw new ValidationError(errors.array());
     }
 
     const name = req.body.name;
