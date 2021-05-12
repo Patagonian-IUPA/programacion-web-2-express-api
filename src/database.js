@@ -16,12 +16,20 @@ class ResourceNotFoundError extends Error {
 
 /**
  * @typedef {Object} TUser
+ * @property {string} username Usuario.
+ * @property {string} password Password.
  * @property {string} name Nombre.
  * @property {number} age Edad.
  *
  * @typedef {TUser & {
  *    id: number,
  *  }} TUserDB
+ *
+ * @typedef {Object} TFilterQuery
+ * @property {string|undefined} username Usuario.
+ * @property {string|undefined} password Password.
+ * @property {string|undefined} name Nombre.
+ * @property {number|undefined} age Edad.
  */
 
 /**
@@ -50,6 +58,14 @@ function validateUser(userData) {
     throw new Error(`La propiedad 'name' es requerida`);
   }
 
+  if (userData.username && !userData.username.trim()) {
+    throw new Error(`La propiedad 'username' no puede ser vacía`);
+  }
+
+  if (userData.password && !userData.password.trim()) {
+    throw new Error(`La propiedad 'password' no puede ser vacía`);
+  }
+
   if (
     !userData.age ||
     isNaN(userData.age) ||
@@ -61,12 +77,16 @@ function validateUser(userData) {
 }
 
 /**
+ * @param {string} username
+ * @param {string} password
  * @param {string} name
  * @param {number} age
  * @returns {TUser | TUserDB}
  */
-function _userStructure(name, age) {
+function _addUser(username, password, name, age) {
   let user = {
+    username,
+    password,
     name,
     age,
   };
@@ -94,9 +114,9 @@ function _userStructure(name, age) {
  * @type {TUserDB[]}
  */
 const DB = [
-  _userStructure('Juan', 30),
-  _userStructure('Edu', 34),
-  _userStructure('Luciana', 25),
+  _addUser('juan', '123456', 'Juan', 30),
+  _addUser('edu', 'pass', 'Edu', 34),
+  _addUser('luci', 'clave', 'Luciana', 25),
 ];
 
 module.exports = {
@@ -131,14 +151,30 @@ module.exports = {
   },
 
   /**
+   * Buscar usuarios.
+   *
+   * @param {TFilterQuery} query Query de búsqueda.
+   * @returns {TUserDB[]}
+   */
+  search(query) {
+    let results = DB;
+
+    for (const [key, value] of Object.entries(query)) {
+      results = results.filter((record) => record[key] === value);
+    }
+
+    return results;
+  },
+
+  /**
    * Agregar un usuariro.
    *
    * @param {TUser} userData
    */
   add(userData) {
     validateUser(userData);
-    const { name, age } = userData;
-    const user = _userStructure(name, age);
+    const { username, password, name, age } = userData;
+    const user = _addUser(username, password, name, age);
     DB.push(user);
     return user;
   },
@@ -147,7 +183,10 @@ module.exports = {
    * Actualizar un usuario.
    *
    * @param {number} userId
-   * @param {TUser} newUserData
+   * @param {TUser & {
+   *    username?: string,
+   *    password?: string,
+   *  }} newUserData
    */
   update(userId, newUserData) {
     const user = this.find(userId);
@@ -163,6 +202,15 @@ module.exports = {
     validateUser(newUserData);
 
     // Actualiza datos
+
+    if (newUserData.username) {
+      user.username = newUserData.username;
+    }
+
+    if (newUserData.password) {
+      user.password = newUserData.password;
+    }
+
     user.name = newUserData.name;
     user.age = newUserData.age;
 
