@@ -7,7 +7,7 @@ module.exports = (route) => {
     const user = database.find(userId);
 
     if (user) {
-      res.json(user);
+      res.json({ user, session: req.session });
     } else {
       res.sendStatus(404);
     }
