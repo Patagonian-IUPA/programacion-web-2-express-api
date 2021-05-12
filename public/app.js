@@ -4,7 +4,11 @@ const contentTable = document.getElementById('contentTable');
 const templateRow = document.getElementById('contentRow').content;
 
 const inputName = document.getElementById('inputName');
+const inputNameHelp = document.getElementById('inputNameHelp');
+const inputNameFormGroup = inputNameHelp.parentElement;
 const inputAge = document.getElementById('inputAge');
+const inputAgeHelp = document.getElementById('inputAgeHelp');
+const inputAgeFormGroup = inputAgeHelp.parentElement;
 
 const createUserFormContent = document.getElementById('form-create');
 const createUserForm = document.getElementById('createUserForm');
@@ -85,13 +89,19 @@ async function createUser() {
   const name = inputName.value;
   const age = inputAge.value;
 
-  await api('post', '/users', {
+  resetFormErrors();
+
+  const response = await api('post', '/users', {
     name,
     age,
   });
 
-  createUserForm.reset();
-  loadTable();
+  if (response.errors) {
+    updateFormErrors(response.errors);
+  } else {
+    createUserForm.reset();
+    loadTable();
+  }
 }
 
 /**
@@ -133,4 +143,28 @@ async function deleteUser(id) {
 function cancelUpdate() {
   updateUserFormContent.style.display = 'none';
   createUserFormContent.style.display = '';
+}
+
+function updateFormErrors(errors) {
+  errors.forEach((error) => {
+    switch (error.field) {
+      case 'name':
+        inputNameHelp.innerText = error.msg;
+        inputNameHelp.classList.remove('hidden');
+        inputNameFormGroup.classList.add('has-error');
+        break;
+      case 'age':
+        inputAgeHelp.innerText = error.msg;
+        inputAgeHelp.classList.remove('hidden');
+        inputAgeFormGroup.classList.add('has-error');
+        break;
+    }
+  });
+}
+
+function resetFormErrors() {
+  inputNameHelp.classList.add('hidden');
+  inputNameFormGroup.classList.remove('has-error');
+  inputAgeHelp.classList.add('hidden');
+  inputAgeFormGroup.classList.remove('has-error');
 }
