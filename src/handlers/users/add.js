@@ -1,8 +1,7 @@
 const database = require('../../database');
-const { validationResult } = require('express-validator');
 const validateName = require('../../validations/user/validateName');
 const validateAge = require('../../validations/user/validateAge');
-const { ValidationError } = require('../../validations/validationError');
+const validateErrors = require('../../validations/validateErrors');
 
 /**
  * POST /api/users
@@ -11,13 +10,7 @@ const { ValidationError } = require('../../validations/validationError');
  * age: obligatorio
  */
 module.exports = (route) => {
-  route.post('/', validateName, validateAge, (req, res) => {
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      throw new ValidationError(errors.array());
-    }
-
+  route.post('/', validateName, validateAge, validateErrors, (req, res) => {
     const name = req.body.name;
     const age = req.body.age;
 
