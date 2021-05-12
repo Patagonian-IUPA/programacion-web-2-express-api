@@ -5,6 +5,15 @@ const database = require('../database');
 
 const authRouting = express.Router();
 
+/*
+POSTMAN TEST SCRIPT
+
+pm.test("Save login token", function () {
+    var jsonData = pm.response.json();
+    pm.collectionVariables.set("token", jsonData.accessToken);
+});
+*/
+
 authRouting.post('/login', (req, res) => {
   const { username, password } = req.body;
 
@@ -25,7 +34,7 @@ authRouting.post('/login', (req, res) => {
       },
       JWT_SECRET,
       {
-        expiresIn: '1m',
+        expiresIn: '30m',
       }
     );
 
