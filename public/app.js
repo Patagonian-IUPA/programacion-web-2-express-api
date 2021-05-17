@@ -53,12 +53,20 @@ async function api(method, endpoint, body = undefined) {
     body = JSON.stringify(body);
   }
 
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+
+  const token = localStorage.getItem('token');
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const response = await fetch(`/api${endpoint}`, {
     method,
     body,
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers,
   });
 
   const data = await response.json();
@@ -70,9 +78,11 @@ async function api(method, endpoint, body = undefined) {
  * Cargar datos de la tabla.
  */
 async function loadTable() {
-  contentTable.innerHTML = '';
-  const data = await api('get', '/users');
-  data.forEach(({ name, age, id }) => addRow(name, age, id));
+  if (localStorage.getItem('token')) {
+    contentTable.innerHTML = '';
+    const data = await api('get', '/users');
+    data.forEach(({ name, age, id }) => addRow(name, age, id));
+  }
 }
 
 /**
