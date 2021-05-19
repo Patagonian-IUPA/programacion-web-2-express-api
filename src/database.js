@@ -116,17 +116,31 @@ module.exports = {
    * Buscar usuarios.
    *
    * @param {TFilterQuery} query Query de búsqueda.
+   * ' OR 1 = 1 OR 1 = '
    * @returns {TUserDB[]}
    */
   async search(query) {
-    const paramsString = Object.keys(query) // ["username", "pass"]
-      .map((elem) => `${elem} = ?`) // ["username = ?", "pass = ?"]
-      .join(' AND '); // "username = ? AND pass = ?"
+    // >>> username = ? AND pass = ?
+    // const paramsString = Object.keys(query) // ["username", "pass"]
+    //   .map((elem) => `${elem} = ?`) // ["username = ?", "pass = ?"]
+    //   .join(' AND '); // "username = ? AND pass = ?"
 
+    // const [users] = await connection.execute(
+    //   `SELECT * FROM users WHERE ${paramsString}`,
+    //   Object.values(query)
+    // );
+    // console.info('SQL:', `SELECT * FROM users WHERE ${paramsString}`);
+
+    // >>> username = 'foo' AND pass = 'bar'
+    const paramsString = Object.entries(query) // [["username", "foo"], ["pass", "bar"]]
+      .map(([key, value]) => `${key} = '${value}'`) // ["username = 'foo'", "pass = 'bar'"]
+      .join(' AND '); // "username = 'foo' AND pass = 'bar'"
     const [users] = await connection.execute(
-      `SELECT * FROM users WHERE ${paramsString}`,
-      Object.values(query)
+      `SELECT * FROM users WHERE ${paramsString}`
     );
+    console.info('SQL:', `SELECT * FROM users WHERE ${paramsString}`);
+
+    console.info('Q:', query);
 
     return users;
   },
