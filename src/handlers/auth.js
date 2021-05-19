@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../config');
 const database = require('../database');
+const requestHandler = require('../middlewares/requestHandler');
 
 const authRouting = express.Router();
 
@@ -14,8 +15,9 @@ pm.test("Save login token", function () {
 });
 */
 
-authRouting.post('/login', async (req, res, next) => {
-  try {
+authRouting.post(
+  '/login',
+  requestHandler(async (req, res) => {
     const { username, password } = req.body;
 
     // Obtenemos el usuario buscando por USUARIO Y CONTRASEÑA
@@ -50,9 +52,7 @@ authRouting.post('/login', async (req, res, next) => {
         error: 'Usuario o contraseña incorrecto',
       });
     }
-  } catch (err) {
-    next(err);
-  }
-});
+  })
+);
 
 module.exports = authRouting;

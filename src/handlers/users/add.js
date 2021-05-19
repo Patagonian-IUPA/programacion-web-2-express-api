@@ -2,6 +2,7 @@ const database = require('../../database');
 const validateName = require('../../validations/user/validateName');
 const validateAge = require('../../validations/user/validateAge');
 const validateErrors = require('../../validations/validateErrors');
+const requestHandler = require('../../middlewares/requestHandler');
 
 /**
  * POST /api/users
@@ -15,7 +16,7 @@ module.exports = (route) => {
     validateName,
     validateAge,
     validateErrors,
-    async (req, res) => {
+    requestHandler(async (req, res) => {
       const name = req.body.name;
       const age = req.body.age;
 
@@ -27,6 +28,6 @@ module.exports = (route) => {
       });
 
       res.json(user);
-    }
+    })
   );
 };
