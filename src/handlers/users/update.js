@@ -15,12 +15,12 @@ module.exports = (route) => {
     validateName,
     validateAge,
     validateErrors,
-    (req, res) => {
+    async (req, res) => {
       const userId = parseInt(req.params.userId);
       const name = req.body.name;
       const age = req.body.age;
 
-      const user = database.update(userId, {
+      const user = await database.update(userId, {
         name: name.trim(),
         age: parseInt(age),
       });

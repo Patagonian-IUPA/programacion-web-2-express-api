@@ -14,16 +14,16 @@ pm.test("Save login token", function () {
 });
 */
 
-authRouting.post('/login', (req, res) => {
+authRouting.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   // Obtenemos el usuario buscando por USUARIO Y CONTRASEÑA
-  const user = database
-    .search({
+  const user = (
+    await database.search({
       username,
       password,
     })
-    .pop();
+  ).pop();
 
   if (user) {
     // Usuario válido

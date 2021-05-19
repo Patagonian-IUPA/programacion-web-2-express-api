@@ -10,15 +10,23 @@ const validateErrors = require('../../validations/validateErrors');
  * age: obligatorio
  */
 module.exports = (route) => {
-  route.post('/', validateName, validateAge, validateErrors, (req, res) => {
-    const name = req.body.name;
-    const age = req.body.age;
+  route.post(
+    '/',
+    validateName,
+    validateAge,
+    validateErrors,
+    async (req, res) => {
+      const name = req.body.name;
+      const age = req.body.age;
 
-    const user = database.add({
-      name: name.trim(),
-      age: parseInt(age),
-    });
+      const user = await database.add({
+        name: name.trim(),
+        age: parseInt(age),
+        username: 'test',
+        password: 'test',
+      });
 
-    res.json(user);
-  });
+      res.json(user);
+    }
+  );
 };

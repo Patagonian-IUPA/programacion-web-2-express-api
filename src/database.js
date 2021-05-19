@@ -1,3 +1,7 @@
+const mysql = require('mysql2/promise');
+
+let connection;
+
 /**
  * Error específico para recursos inexistentes en la DB.
  */
@@ -33,18 +37,6 @@ class ResourceNotFoundError extends Error {
  */
 
 /**
- * Symbol para propiedad ID.
- */
-const idKey = Symbol('_id');
-
-/**
- * Último ID.
- *
- * @type {number}
- */
-let lastDbID = 0;
-
-/**
  * Validar datos del usuario.
  *
  * @param {TUser} userData
@@ -76,66 +68,31 @@ function validateUser(userData) {
   }
 }
 
-/**
- * @param {string} username
- * @param {string} password
- * @param {string} name
- * @param {number} age
- * @returns {TUser | TUserDB}
- */
-function _addUser(username, password, name, age) {
-  let user = {
-    username,
-    password,
-    name,
-    age,
-  };
-
-  validateUser(user);
-
-  lastDbID++;
-
-  user = {
-    [idKey]: lastDbID,
-
-    get id() {
-      return this[idKey];
-    },
-
-    ...user,
-  };
-
-  return user;
-}
-
-/**
- * Base de datos.
- *
- * @type {TUserDB[]}
- */
-const DB = [
-  _addUser('juan', '123456', 'Juan', 30),
-  _addUser('edu', 'pass', 'Edu', 34),
-  _addUser('luci', 'clave', 'Luciana', 25),
-];
-
 module.exports = {
+  async initDB() {
+    connection = await mysql.createConnection({
+      host: 'localhost',
+      user: 'root',
+      password: 'diplomatura',
+      database: 'diplomatura',
+    });
+  },
   /**
    * Listar.
    *
    * @param {string|undefined} filterName Filtrar por nombre.
    * @returns {TUserDB[]}
    */
-  list(filterName) {
-    let users = DB;
+  async list(filterName) {
+    const [users] = await connection.execute('SELECT * FROM users');
 
-    if (filterName && filterName.trim()) {
-      filterName = filterName.trim().toLowerCase();
+    // if (filterName && filterName.trim()) {
+    //   filterName = filterName.trim().toLowerCase();
 
-      users = users.filter((user) =>
-        user.name.toLowerCase().includes(filterName)
-      );
-    }
+    //   users = users.filter((user) =>
+    //     user.name.toLowerCase().includes(filterName)
+    //   );
+    // }
 
     return users;
   },
@@ -146,8 +103,17 @@ module.exports = {
    * @param {number} userId ID de Usuario.
    * @returns {TUserDB | undefined}
    */
-  find(userId) {
-    return DB.find((u) => u.id === userId);
+  async find(userId) {
+    const [users] = await connection.execute(
+      'SELECT * FROM users WHERE id = ?',
+      [userId]
+    );
+
+    if (users.length > 0) {
+      return users[0];
+    } else {
+      return undefined;
+    }
   },
 
   /**
@@ -156,14 +122,17 @@ module.exports = {
    * @param {TFilterQuery} query Query de búsqueda.
    * @returns {TUserDB[]}
    */
-  search(query) {
-    let results = DB;
+  async search(query) {
+    const paramsString = Object.keys(query) // ["username", "pass"]
+      .map((elem) => `${elem} = ?`) // ["username = ?", "pass = ?"]
+      .join(' AND '); // "username = ? AND pass = ?"
 
-    for (const [key, value] of Object.entries(query)) {
-      results = results.filter((record) => record[key] === value);
-    }
+    const [users] = await connection.execute(
+      `SELECT * FROM users WHERE ${paramsString}`,
+      Object.values(query)
+    );
 
-    return results;
+    return users;
   },
 
   /**
@@ -171,12 +140,15 @@ module.exports = {
    *
    * @param {TUser} userData
    */
-  add(userData) {
+  async add(userData) {
     validateUser(userData);
     const { username, password, name, age } = userData;
-    const user = _addUser(username, password, name, age);
-    DB.push(user);
-    return user;
+    const [result] = await connection.execute(
+      'INSERT INTO users(username, password, name, age) VALUES(?, ?, ?, ?)',
+      [username, password, name, age]
+    );
+
+    return await this.find(result.insertId);
   },
 
   /**
@@ -188,8 +160,8 @@ module.exports = {
    *    password?: string,
    *  }} newUserData
    */
-  update(userId, newUserData) {
-    const user = this.find(userId);
+  async update(userId, newUserData) {
+    const user = await this.find(userId);
 
     if (!user) {
       throw new ResourceNotFoundError(
@@ -214,6 +186,11 @@ module.exports = {
     user.name = newUserData.name;
     user.age = newUserData.age;
 
+    await connection.execute(
+      'UPDATE users SET username = ?, password = ?, name = ?, age = ? WHERE id = ?',
+      [user.username, user.password, user.name, user.age, user.id]
+    );
+
     return user;
   },
 
@@ -222,8 +199,8 @@ module.exports = {
    *
    * @param {number} userId
    */
-  remove(userId) {
-    const user = this.find(userId);
+  async remove(userId) {
+    const user = await this.find(userId);
 
     if (!user) {
       throw new ResourceNotFoundError(
@@ -233,11 +210,7 @@ module.exports = {
       );
     }
 
-    const userIndex = DB.findIndex((item) => item.id === userId);
-
-    if (userIndex > -1) {
-      DB.splice(userIndex, 1);
-    }
+    await connection.execute('DELETE FROM users WHERE id = ?', [user.id]);
   },
 
   ResourceNotFoundError,
