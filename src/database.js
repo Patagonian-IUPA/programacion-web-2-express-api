@@ -1,4 +1,5 @@
 const mysql = require('mysql2/promise');
+const { DB_CONFIG } = require('./config');
 
 let connection;
 
@@ -70,12 +71,7 @@ function validateUser(userData) {
 
 module.exports = {
   async initDB() {
-    connection = await mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: 'diplomatura',
-      database: 'diplomatura',
-    });
+    connection = await mysql.createConnection(DB_CONFIG);
   },
   /**
    * Listar.
