@@ -13,6 +13,15 @@
 2. Instalar dependencias: `npm install`
 3. Ejecutar servidor: [Express](https://expressjs.com/es/): `node server.js`
 
+## Docker
+
+```bash
+docker compose up
+
+# Si no funciona lo anterior
+docker-compose up
+```
+
 ### Setup DB
 
 ```
