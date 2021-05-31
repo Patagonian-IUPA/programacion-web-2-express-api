@@ -13,7 +13,7 @@ app.use(express.static('./public'));
 (async () => {
   await initDB();
   app.listen(PORT, () => {
-    console.info(`Escuchando en puerto ${PORT}`);
+    console.info(`Oyendo en puerto ${PORT}`);
   });
 })();
 
