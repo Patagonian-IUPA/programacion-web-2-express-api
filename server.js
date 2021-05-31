@@ -1,5 +1,5 @@
 const express = require('express');
-const { PORT } = require('./src/config');
+const { PORT: APP_PORT } = require('./src/config');
 const routingAPI = require('./src/handlers');
 const { initDB } = require('./src/database');
 
@@ -12,9 +12,7 @@ app.use(express.static('./public'));
 
 (async () => {
   await initDB();
-  app.listen(PORT, () => {
-    console.info(`Escuchando en puerto ${PORT}`);
-  });
+  app.listen(APP_PORT, () => console.info(`Estoy en puerto ${APP_PORT}`));
 })();
 
 // initDB().then(() => {
