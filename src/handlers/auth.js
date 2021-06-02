@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../config');
 const database = require('../database');
+const requestHandler = require('../middlewares/requestHandler');
 
 const authRouting = express.Router();
 
@@ -14,41 +15,44 @@ pm.test("Save login token", function () {
 });
 */
 
-authRouting.post('/login', async (req, res) => {
-  const { username, password } = req.body;
+authRouting.post(
+  '/login',
+  requestHandler(async (req, res) => {
+    const { username, password } = req.body;
 
-  // Obtenemos el usuario buscando por USUARIO Y CONTRASEÑA
-  const user = (
-    await database.search({
-      username,
-      password,
-    })
-  ).pop();
-
-  if (user) {
-    // Usuario válido
-    const accessToken = jwt.sign(
-      {
+    // Obtenemos el usuario buscando por USUARIO Y CONTRASEÑA
+    const user = (
+      await database.search({
         username,
-        id: user.id,
-      },
-      JWT_SECRET,
-      {
-        expiresIn: '30m',
-      }
-    );
+        password,
+      })
+    ).pop();
 
-    res.json({
-      status: 'success',
-      accessToken,
-    });
-  } else {
-    // Usuario inválido
-    res.status(401).json({
-      status: 'error',
-      error: 'Usuario o contraseña incorrecto',
-    });
-  }
-});
+    if (user) {
+      // Usuario válido
+      const accessToken = jwt.sign(
+        {
+          username,
+          id: user.id,
+        },
+        JWT_SECRET,
+        {
+          expiresIn: '30m',
+        }
+      );
+
+      res.json({
+        status: 'success',
+        accessToken,
+      });
+    } else {
+      // Usuario inválido
+      res.status(401).json({
+        status: 'error',
+        error: 'Usuario o contraseña incorrecto',
+      });
+    }
+  })
+);
 
 module.exports = authRouting;

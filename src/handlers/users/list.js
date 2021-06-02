@@ -1,10 +1,13 @@
 const database = require('../../database');
+const requestHandler = require('../../middlewares/requestHandler');
 
 // GET /api/users
 module.exports = (route) => {
-  route.get('/', async (req, res) => {
-    const filterName = req.query.filterName;
-    const users = await database.list(filterName);
-    res.json(users);
-  });
+  route.get(
+    '/',
+    requestHandler(async (req, res) => {
+      const users = await database.list(req.query.filterName);
+      res.json(users);
+    })
+  );
 };

@@ -24,8 +24,8 @@ docker-compose up
 
 ### Setup DB
 
-```
-create table users(username varchar(255), password varchar(255), name varchar(255), age smallint, id int not null primary key auto_increment)
+```sql
+create table users(username varchar(255), password varchar(255), name varchar(255), age smallint, id int not null primary key auto_increment);
 
-insert into users(username, password, name, age) values ('edu', 'educuomo', 'Eduardo Cuomo', 33)
+insert into users(username, password, name, age) values ('edu', 'educuomo', 'Eduardo Cuomo', 33);
 ```

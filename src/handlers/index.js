@@ -11,10 +11,16 @@ apiRouting.use('/api', authRouting, authenticateJWT, usersRouting);
 apiRouting.use((err, req, res, next) => {
   if (err instanceof ValidationError) {
     // Respuesta para los errores de validación
-    res.status(400).json({ errors: err.formatErrors() });
+    res.status(400).json({
+      status: 'error',
+      errors: err.formatErrors(),
+    });
   } else {
     // Respuesta para otros errores
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      status: 'error',
+      error: err.message,
+    });
   }
 });
 
