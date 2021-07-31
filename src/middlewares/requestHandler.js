@@ -5,7 +5,7 @@ module.exports = (handler) => async (req, res, next) => {
     console.error('ERROR!', { req, err });
 
     res.status(500).json({
-      status: 'ERROR',
+      status: 'error',
       message: err.message,
     });
   }

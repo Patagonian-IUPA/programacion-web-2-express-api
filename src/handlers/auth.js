@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../config');
 const database = require('../database');
 const requestHandler = require('../middlewares/requestHandler');
+const { getClusterId } = require('../utils/cluster');
+const storage = require('../utils/storage');
 
 const authRouting = express.Router();
 
@@ -40,6 +42,11 @@ authRouting.post(
           expiresIn: '30m',
         }
       );
+
+      storage[user.id] = {
+        username,
+        clusterId: getClusterId(),
+      };
 
       res.json({
         status: 'success',
