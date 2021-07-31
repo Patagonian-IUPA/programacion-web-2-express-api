@@ -1,11 +1,20 @@
 const express = require('express');
 const usersRouting = require('./users');
+const utilsRouting = require('./utils');
 const { ValidationError } = require('../validations/validationError');
 const authRouting = require('./auth');
 const authenticateJWT = require('../middlewares/authenticateJWT');
+const { getClusterId } = require('../utils/cluster');
 
 const apiRouting = express.Router();
 
+// Mostrar todos los requests
+apiRouting.use((req, res, next) => {
+  console.info(req.url, '==>', `#${getClusterId()}`);
+  next();
+});
+
+apiRouting.use('/api/utils', utilsRouting);
 apiRouting.use('/api', authRouting, authenticateJWT, usersRouting);
 
 apiRouting.use((err, req, res, next) => {
