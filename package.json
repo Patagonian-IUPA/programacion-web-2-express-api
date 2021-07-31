@@ -5,6 +5,10 @@
   "main": "server.js",
   "scripts": {
     "start": "nodemon server.js",
+    "server": "pm2 start server.js -i max --watch",
+    "server:logs": "pm2 logs server",
+    "server:stop": "pm2 stop server",
+    "server:delete": "pm2 delete server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "IUPA",
