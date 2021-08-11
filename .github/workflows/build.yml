@@ -22,4 +22,5 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v2
-      - run: npm run build
+      - run: npm run install
+      # - run: npm run build
