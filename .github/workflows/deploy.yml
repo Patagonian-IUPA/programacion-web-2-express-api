@@ -28,7 +28,7 @@ jobs:
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.SSH_SERVER_IUPA }}
-          # known_hosts: '# Solo para que no de error...'
+          known_hosts: '# Requerido. Esto es solo para que no falle'
       - name: Adding Known Hosts
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
