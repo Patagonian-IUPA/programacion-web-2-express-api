@@ -2,6 +2,8 @@
 
 set -ex
 
+source ~/.bashrc
+
 npm run server:stop
 git pull
 npm run server
