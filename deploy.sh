@@ -5,6 +5,8 @@ export NVM_DIR="${NVM_DIR:-${HOME}/.nvm}"
 
 set -ex
 
+cd "$(dirname "$0")"
+
 npm run server:stop
 git pull
 npm run server
