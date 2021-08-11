@@ -33,4 +33,4 @@ jobs:
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: 'Deploy Server'
-        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} zsh -c ${{ secrets.SERVER_DEPLOY_SCRIPT }}
+        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} bash -i -c ${{ secrets.SERVER_DEPLOY_SCRIPT }}
