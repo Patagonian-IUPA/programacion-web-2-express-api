@@ -1,0 +1,25 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      - release/*
+  pull_request:
+    branches:
+      - release/*
+      - HOTFIX-*
+      - hotfix-*
+      - HOTFIX/*
+      - hotfix/*
+      - FIX*
+      - fix*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm run build
