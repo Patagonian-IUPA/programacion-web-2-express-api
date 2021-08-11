@@ -2,7 +2,7 @@
 
 set -ex
 
-source ~/.bashrc
+. ~/.nvm/nvm.sh
 
 npm run server:stop
 git pull
